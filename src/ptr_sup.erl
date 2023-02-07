@@ -30,6 +30,7 @@ init([]) ->
                  intensity => 0,
                  period => 1},
     ChildSpecs = [],
+    io:format("Hello PTR\n"),
     {ok, {SupFlags, ChildSpecs}}.
 
 %% internal functions
