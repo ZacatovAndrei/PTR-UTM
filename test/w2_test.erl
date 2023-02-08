@@ -20,3 +20,9 @@ dedup_test() ->
   [1] = mylists:dedup([1]),
   [1, 2, 3] = mylists:dedup([1, 1, 1, 1, 2, 2, 3, 3]),
   [1, 2, 3, 1] = mylists:dedup([1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 1, 1, 1]).
+greeting_test() ->
+  ?assertEqual(w2:greet(), "Hello PTR").
+
+greeting_negative_test() ->
+  ?assertEqual(w2:greet(), "Hello ptr").
+

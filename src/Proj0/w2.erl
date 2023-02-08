@@ -1,7 +1,7 @@
 -module(w2).
 
 -export([translator/2, smallest_number/3, line_words/1, letters_combinations/1,
-         group_anagrams/1, to_roman/1]).
+         group_anagrams/1, to_roman/1,greet/0]).
 
 % string manipulation stuff
 
@@ -65,8 +65,8 @@ check_bottom_row([Letter | Letters]) ->
 
 letters_combinations([]) ->
   [[]];
-letters_combinations([H | T]) ->
-  Digits =
+letters_combinations([H | T]) when H >= $2, H =< $9 ->
+  Digits =  
     #{$2 => "abc",
       $3 => "def",
       $4 => "ghi",
@@ -75,7 +75,9 @@ letters_combinations([H | T]) ->
       $7 => "pqrs",
       $8 => "tuv",
       $9 => "wxyz"},
-  [[C | N] || C <- maps:get(H, Digits), N <- letters_combinations(T)].
+  [[C | N] || C <- maps:get(H, Digits), N <- letters_combinations(T)];
+letters_combinations(_List) ->
+  {error, "Incorrect number"}.
 
 group_anagrams([H | T]) ->
   Map = maps:put(H, [], #{}),
@@ -109,4 +111,8 @@ to_roman(Num, List = [{A, R} | _T], Acc) when Num >= A ->
 to_roman(Num, [{A, _R} | T], Acc) when A > Num ->
   to_roman(Num, T, Acc);
 to_roman(_Num, [], _Acc) ->
-  {error, "weird error"}.
+  {error, "Number unparsable"}.
+
+greet()->
+  io:format("Hello PTR\n"),
+  "Hello PTR".
