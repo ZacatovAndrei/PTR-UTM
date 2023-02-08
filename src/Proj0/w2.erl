@@ -1,61 +1,7 @@
 -module(w2).
 
--export([is_prime/1, cylinder_area/2, reverse/1, get_fibs/1, unique_sum/1,
-         extract_random_n/2, translator/2, smallest_number/3]).
-
-%lists stuff
-
-reverse(List) when is_list(List) ->
-  reverse(List, []).
-
-reverse(OldList = [H | T], NewList) when is_list(OldList), is_list(NewList) ->
-  reverse(T, [H | NewList]);
-reverse([], NewList) when is_list(NewList) ->
-  NewList.
-
-unique_sum(List) when is_list(List) ->
-  lists:sum(
-    lists:uniq(List)).
-
-extract_random_n(List, Num) when is_list(List), length(List) >= Num, Num > 0 ->
-  extract_random_n(List, Num, length(List), []).
-
-extract_random_n(List, Num, Len, Acc) when Num > 0 ->
-  Elem =
-    lists:nth(
-      rand:uniform(Len), List),
-  extract_random_n(List, Num - 1, Len, [Elem | Acc]);
-extract_random_n(_List, 0, _Len, Acc) ->
-  Acc.
-
-% unrelated math stuff
-cylinder_area(Height, Radius) when is_number(Height), is_number(Radius) ->
-  2 * math:pi() * Radius * (Radius + Height).
-
-get_fibs(Num) when is_integer(Num) ->
-  get_fibs(0, 1, Num - 1, [1]).
-
-get_fibs(T1, T2, 0, List) ->
-  lists:reverse([T1 + T2 | List]);
-get_fibs(T1, T2, Amount, List) ->
-  NewNum = T1 + T2,
-  get_fibs(T2, NewNum, Amount - 1, [NewNum | List]).
-
-is_prime(2) ->
-  false;
-is_prime(3) ->
-  true;
-is_prime(Num) when Num > 3, Num rem 6 =:= 1; Num rem 6 =:= 5 ->
-  check_for_prime(Num, 3, trunc(math:sqrt(Num)));
-is_prime(Num) when is_number(Num) ->
-  false.
-
-check_for_prime(Num, _Div, Lim) when Num > Lim ->
-  true;
-check_for_prime(Num, Div, _Lim) when Num rem Div =:= 0 ->
-  false;
-check_for_prime(Num, Div, Lim) when is_number(Num), Lim > Num ->
-  check_for_prime(Num, Div + 2, Lim).
+-export([translator/2, smallest_number/3, line_words/1, letters_combinations/1,
+         group_anagrams/1, to_roman/1]).
 
 % string manipulation stuff
 
@@ -68,15 +14,99 @@ translator(Dict, String) when is_map(Dict) ->
   Replacements = maps:to_list(Dict),
   replace(Replacements, String).
 
-%other tasks
-
 smallest_number(D1, D2, D3) when is_number(D1), is_number(D2), is_number(D3) ->
   smallest_number(lists:sort([D1, D2, D3])).
 
 smallest_number(List = [_N1, _N2, _N3]) ->
-    list_to_integer(List);
-  smallest_number([0, N1, N2]) ->
-    list_to_integer([N1, 0, N2]);
-  smallest_number([0, 0, N1]) ->
-    N1.
+  list_to_integer(List);
+smallest_number([0, N1, N2]) ->
+  list_to_integer([N1, 0, N2]);
+smallest_number([0, 0, N1]) ->
+  N1.
 
+line_words(Word_list) ->
+  lists:filter(fun(Word) ->
+                  check_top_row(Word) orelse check_middle_row(Word) orelse check_bottom_row(Word)
+               end,
+               Word_list).
+
+check_top_row([]) ->
+  true;
+check_top_row([Letter | Letters]) ->
+  Row = "qwertyuiop",
+  case lists:member(Letter, Row) of
+    true ->
+      check_top_row(Letters);
+    _ ->
+      false
+  end.
+
+check_middle_row([]) ->
+  true;
+check_middle_row([Letter | Letters]) ->
+  Row = "asdfghjkl",
+  case lists:member(Letter, Row) of
+    true ->
+      check_middle_row(Letters);
+    false ->
+      false
+  end.
+
+check_bottom_row([]) ->
+  true;
+check_bottom_row([Letter | Letters]) ->
+  Row = "zxcvbnm",
+  case lists:member(Letter, Row) of
+    true ->
+      check_bottom_row(Letters);
+    _ ->
+      false
+  end.
+
+letters_combinations([]) ->
+  [[]];
+letters_combinations([H | T]) ->
+  Digits =
+    #{$2 => "abc",
+      $3 => "def",
+      $4 => "ghi",
+      $5 => "jkl",
+      $6 => "mno",
+      $7 => "pqrs",
+      $8 => "tuv",
+      $9 => "wxyz"},
+  [[C | N] || C <- maps:get(H, Digits), N <- letters_combinations(T)].
+
+group_anagrams([H | T]) ->
+  Map = maps:put(H, [], #{}),
+  group_anagrams(T, Map).
+
+group_anagrams([_H | _T], Map) ->
+  Map.
+
+to_roman(Num_str) ->
+  Table =
+    [{1000, "M"},
+     {900, "CM"},
+     {500, "D"},
+     {400, "CD"},
+     {100, "C"},
+     {90, "XC"},
+     {50, "L"},
+     {40, "XL"},
+     {10, "X"},
+     {9, "IX"},
+     {5, "V"},
+     {4, "IV"},
+     {1, "I"}],
+  {Int_num, _Rest} = string:to_integer(Num_str),
+  to_roman(Int_num, Table, []).
+
+to_roman(0, _List, Acc) ->
+  lists:flatten(Acc);
+to_roman(Num, List = [{A, R} | _T], Acc) when Num >= A ->
+  to_roman(Num - A, List, [Acc | R]);
+to_roman(Num, [{A, _R} | T], Acc) when A > Num ->
+  to_roman(Num, T, Acc);
+to_roman(_Num, [], _Acc) ->
+  {error, "weird error"}.
