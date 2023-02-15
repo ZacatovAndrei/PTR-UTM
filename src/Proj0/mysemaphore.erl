@@ -2,7 +2,7 @@
 
 -export([create_semaphore/1, acquire/1, release/1,semaphore/1]).
 
-create_semaphore(N) when N > 0 ->
+create_semaphore(N) when N >= 0 ->
   spawn(mysemaphore,semaphore,[N]).
 
 semaphore(0) ->
